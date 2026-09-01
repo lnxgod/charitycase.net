@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>No Step on Snek - Single Slow Cobra Bonus (Space Jump Only)</title>
+  
+  <!-- Make the page scale better on mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+
+  <style>
+    /* ========== Basic Styles & Layout ========== */
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(120deg, #222 0%, #333 100%);
+      overflow: hidden;
+      font-family: sans-serif;
+      position: relative;
+    }
+    
+    #canvasContainer {
+      width: 100%;
+      max-width: 1280px; 
+      margin: 0 auto;
+      position: relative;
+      box-shadow: 0px 0px 20px rgba(0,0,0,0.5);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #333;
+      border: 2px solid #222;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Moved UI below canvas */
+    #uiLayer {
+      position: static; 
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      color: white;
+      text-align: center;
+      padding: 10px 0;
+      pointer-events: none;
+      user-select: none;
+    }
+    .stats {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    #playerStatus {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    #levelTimerDisplay {
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+
+    /* Jetpack bar */
+    #jetpackBarContainer {
+      position: relative;
+      width: 60px; 
+      height: 300px; 
+      border: 2px solid #fff;
+      background-color: #333;
+      margin: 0 auto 10px; 
+      pointer-events: none;
+    }
+    #jetpackFuelBar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: limegreen;
+      transition: height 0.1s;
+    }
+
+    /* Touch Buttons at bottom */
+    #buttonRow {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+    }
+    .touchButton {
+      background-color: rgba(255,255,255,0.3);
+      color: #fff;
+      border: 1px solid #888;
+      border-radius: 8px;
+      font-size: 16px;
+      padding: 10px;
+      margin: 0 5px;
+      min-width: 60px;
+      text-align: center;
+      user-select: none;
+      transition: background-color 0.15s;
+      cursor: pointer;
+    }
+    .touchButton:active {
+      background-color: rgba(255,255,255,0.5);
+    }
+
+    /* Title Screen */
+    #titleScreen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 3;
+    }
+    #titleScreen h1 {
+      font-size: 3em;
+      margin-bottom: 0.2em;
+    }
+    #titleScreen h2 {
+      margin-top: 0;
+      margin-bottom: 1em;
+      font-style: italic;
+    }
+
+    /* Settings side-by-side */
+    #settingsContainer {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 20px;
+      overflow-x: auto;
+      padding: 10px 0;
+      max-width: 90vw;
+      justify-content: center;
+    }
+    #settingsPanel, #debugPanel {
+      background: #222;
+      padding: 10px 20px;
+      border-radius: 8px;
+      min-width: 250px;
+      flex-shrink: 0;
+    }
+    #settingsPanel label,
+    #debugPanel label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    /* Start Button */
+    #startButton {
+      font-size: 1.2em;
+      padding: 10px 30px;
+      cursor: pointer;
+      background: #6AB04A;
+      border: none;
+      color: #fff;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+    #startButton:hover {
+      background: #58a239;
+    }
+
+    /* Avatar Selection */
+    #avatarSelection {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .avatarOption {
+      border: 2px solid #666;
+      padding: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .avatarOption:hover {
+      transform: scale(1.1);
+      border-color: #fff;
+    }
+    .selectedAvatar {
+      border-color: #FFD700 !important;
+    }
+
+    /* Debug Overlay */
+    #debugOverlay {
+      background: #333;
+      color: #fff;
+      padding: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      position: relative;
+      margin-top: 10px;
+      display: none;
+    }
+    #debugOverlay h3 {
+      margin: 0 0 10px;
+    }
+    #debugOverlay p {
+      margin: 5px 0;
+      font-size: 14px;
+      line-height: 1.2em;
+    }
+
+    /* Round Stats Screen (with fadeIn) */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    #roundStatsScreen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 4;
+      display: none;
+      animation: fadeIn 0.6s ease-out;
+    }
+    #roundStatsScreen button {
+      margin-top: 20px;
+      font-size: 1.2em;
+      padding: 10px 30px;
+      cursor: pointer;
+      background: #3498db;
+      border: none;
+      color: #fff;
+      border-radius: 4px;
+    }
+    #roundStatsScreen button:hover {
+      background: #2980b9;
+    }
+    #roundStatsScreen h1 {
+      text-shadow: 0 0 10px #fff; /* subtle glow */
+    }
+
+    /* Game Over / Victory Screen */
+    #gameOverScreen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 5;
+      display: none;
+      text-align: center;
+      padding: 20px;
+      animation: fadeIn 0.8s ease-out;
+    }
+    #gameOverScreen h1 {
+      font-size: 3em;
+      margin-bottom: 0.5em;
+      text-shadow: 0 0 10px #fff;
+    }
+    #restartButton {
+      font-size: 1.2em;
+      padding: 10px 30px;
+      cursor: pointer;
+      background: #e74c3c;
+      border: none;
+      color: #fff;
+      border-radius: 4px;
+    }
+    #restartButton:hover {
+      background: #c0392b;
+    }
+
+    /* =============== Confetti =============== */
+    .confetti {
+      position: fixed; 
+      top: -10px; 
+      width: 10px; 
+      height: 10px;
+      background-color: red;
+      opacity: 0.8;
+      animation: confettiFall 4s linear infinite;
+      z-index: 999;
+    }
+    @keyframes confettiFall {
+      0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Title Screen (initial) -->
+  <div id="titleScreen">
+    <h1>NO STEP ON SNEK</h1>
+    <h2>Finish 5 rounds + a BOSS round to win!</h2>
+
+    <div id="settingsContainer">
+      <!-- Main Settings Panel -->
+      <div id="settingsPanel">
+        <label for="snekSpeed">Snek Speed (1 - 10):</label>
+        <input type="number" id="snekSpeed" min="1" max="10" value="3" />
+
+        <label for="ballFrequency">Ball Frequency (1 = frequent, 10 = rare):</label>
+        <input type="number" id="ballFrequency" min="1" max="10" value="6" />
+
+        <label for="powerupFrequency">Power-up Frequency (1 = frequent, 10 = rare):</label>
+        <input type="number" id="powerupFrequency" min="1" max="10" value="5" />
+
+        <label for="gravityValue">Gravity (0.0 ~ 2.0):</label>
+        <input type="number" step="0.1" id="gravityValue" min="0" max="2" value="0.2" />
+
+        <label for="musicVolume">Music Volume (0.0 - 1.0):</label>
+        <input type="number" step="0.1" id="musicVolume" min="0" max="1" value="0.4" />
+
+        <label for="jetpackForce">Jetpack Force (0.0 ~ 2.0):</label>
+        <input type="number" step="0.1" id="jetpackForce" min="0" max="2" value="0.8" />
+
+        <label>
+          <input type="checkbox" id="cheatMode" />
+          Enable Cheat Mode (start with weapon)
+        </label>
+
+        <hr/>
+        <!-- Landing Timer Refill input -->
+        <label for="landingTimerRefill">Timer Refill On Landing (0.0 ~ 0.1):</label>
+        <input type="number" step="0.001" min="0" max="0.1" value="0.0125" id="landingTimerRefill" />
+      </div>
+
+      <!-- Debug Panel -->
+      <div id="debugPanel">
+        <select id="skillLevel">
+          <option value="custom" selected>Custom</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+
+        <label for="humanBaseSpeed">Human Base Speed:</label>
+        <input type="number" step="0.1" id="humanBaseSpeed" value="2" />
+
+        <label for="humanJumpForce">Human Jump Force:</label>
+        <input type="number" step="0.1" id="humanJumpForce" value="6" />
+
+        <label for="humanMaxFallSpeed">Human Max Fall Speed:</label>
+        <input type="number" step="0.1" id="humanMaxFallSpeed" value="8" />
+
+        <label for="snekMinSpeed">Snek Min Speed:</label>
+        <input type="number" step="0.1" id="snekMinSpeed" value="1" />
+
+        <label for="maxJetpackFuel">Max Jetpack Fuel:</label>
+        <input type="number" step="1" id="maxJetpackFuel" value="80" />
+
+        <label for="jetpackUsageRate">Jetpack Usage Rate:</label>
+        <input type="number" step="0.1" id="jetpackUsageRate" value="1.0" />
+
+        <label for="jetpackRechargeRate">Jetpack Recharge Rate:</label>
+        <input type="number" step="0.1" id="jetpackRechargeRate" value="0.5" />
+
+        <label for="platformCount">Platform Count:</label>
+        <input type="number" step="1" id="platformCount" value="18" />
+
+        <label for="platformBounceMult">Platform Bounce Multiplier:</label>
+        <input type="number" step="0.1" id="platformBounceMult" value="0.7" />
+
+        <label for="jetpackAcceleration">Jetpack Acceleration:</label>
+        <input type="number" step="0.1" id="jetpackAcceleration" value="0.4" />
+
+        <label for="jetpackMaxSpeed">Jetpack Max Speed (upward):</label>
+        <input type="number" step="0.1" id="jetpackMaxSpeed" value="3.0" />
+      </div>
+    </div>
+    
+    <p style="max-width: 80%; margin-top: 20px; text-align: center;">
+      <strong>HOW TO PLAY:</strong><br />
+      Use <em>Left/Right Arrow</em> keys (or A/D) to move.<br />
+      Press <em>SPACE</em> to jump and use the jetpack.<br />
+      Or use on-screen buttons (mouse/touch) below.<br />
+      If you have a weapon (or super mode), colliding with sneks/cobra destroys them.<br />
+      Otherwise they will hurt you unless shielded.<br />
+      Finish 5 normal rounds plus the BOSS round to win. Good luck!
+    </p>
+
+    <!-- Avatar Selection -->
+    <div id="avatarSelection">
+      <div class="avatarOption selectedAvatar" data-avatar="whiteStick" style="background:#FFF;">
+        Default
+      </div>
+      <div class="avatarOption" data-avatar="blueStick" style="background:lightblue;">
+        Blue
+      </div>
+      <div class="avatarOption" data-avatar="greenStick" style="background:lightgreen;">
+        Green
+      </div>
+    </div>
+
+    <button id="startButton">Start Game</button>
+  </div>
+
+  <!-- Playfield (Canvas) -->
+  <div id="canvasContainer">
+    <canvas id="gameCanvas" width="1280" height="720"></canvas>
+  </div>
+
+  <!-- Status bar below the playfield -->
+  <div id="uiLayer">
+    <div class="stats">
+      <span id="score">Score: 0</span>
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      <span id="lives">Lives: 5</span>
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      <span id="roundInfo">Round: 1</span>
+    </div>
+    <div id="levelTimerDisplay">
+      Time Left: <span id="levelTimer">45.0</span>
+    </div>
+    <div id="playerStatus">
+      <span>Weapon: <span id="weaponStatus">Fists</span></span>
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      <span>Power-Up: <span id="powerUpStatus">None</span></span>
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      <span>Timer: <span id="powerUpTimer">0</span>s</span>
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      <span>Fuel: <span id="fuelStatus">80</span></span>
+    </div>
+  </div>
+
+  <!-- Jetpack bar -->
+  <div id="jetpackBarContainer" style="display:none;">
+    <div id="jetpackFuelBar"></div>
+  </div>
+
+  <!-- Buttons at the bottom -->
+  <div id="buttonRow">
+    <div class="touchButton" id="btnLeft">LEFT</div>
+    <div class="touchButton" id="btnJump">JUMP</div>
+    <div class="touchButton" id="btnRight">RIGHT</div>
+  </div>
+
+  <!-- Debug Overlay (optional) -->
+  <div id="debugOverlay">
+    <h3>Real-Time Debug Info</h3>
+    <p>Gravity: <span id="dbg_gravity"></span></p>
+    <p>Jetpack Force: <span id="dbg_jetpackForce"></span></p>
+    <p>Max Jetpack Fuel: <span id="dbg_maxJetpackFuel"></span></p>
+    <p>Usage Rate: <span id="dbg_usageRate"></span></p>
+    <p>Recharge Rate: <span id="dbg_rechargeRate"></span></p>
+    <p>Human Base Speed: <span id="dbg_humanBaseSpeed"></span></p>
+    <p>Human Jump Force: <span id="dbg_humanJumpForce"></span></p>
+    <p>Human Max Fall Speed: <span id="dbg_humanMaxFallSpeed"></span></p>
+    <p>Snek Max Speed: <span id="dbg_snekMaxSpeed"></span></p>
+    <p>Snek Min Speed: <span id="dbg_snekMinSpeed"></span></p>
+    <p>Platform Count: <span id="dbg_platformCount"></span></p>
+    <p>Platform Bounce Mult: <span id="dbg_platformBounceMult"></span></p>
+    <p>Ball Frequency Factor: <span id="dbg_ballFreq"></span></p>
+    <p>Powerup Frequency: <span id="dbg_powerupFreq"></span></p>
+    <p>Jetpack Acceleration: <span id="dbg_jetpackAcceleration"></span></p>
+    <p>Jetpack Max Speed: <span id="dbg_jetpackMaxSpeed"></span></p>
+  </div>
+
+  <!-- Round Stats Screen -->
+  <div id="roundStatsScreen">
+    <h1>Round Complete!</h1>
+    <div id="roundStatsMessage">Placeholder stats...</div>
+    <button id="nextRoundButton">Next Round</button>
+  </div>
+
+  <!-- Game Over / Victory Screen -->
+  <div id="gameOverScreen">
+    <h1>GAME OVER</h1>
+    <p id="finalScore"></p>
+    <button id="restartButton">Restart</button>
+  </div>
+
+  <script>
+    /* ===============================================
+     *   ARRAYS / GLOBALS / CONFIG
+     * =============================================== */
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const CANVAS_WIDTH = canvas.width;   
+    const CANVAS_HEIGHT = canvas.height; 
+
+    // Boss round is round 6
+    let currentRound = 1;  
+    const BOSS_ROUND = 6;
+    let MAX_ROUNDS = 6;
+
+    let lastTimestamp = 0;
+    let timeRemaining = 45;
+    let gameOver = false;
+    let gameState = "title";
+
+    let powerUps = [];
+    const MAX_POWERUPS_ONSCREEN = 2;
+
+    // We'll let sneks move a bit faster by default
+    let SNEK_MAX_SPEED = 3.0;  // was 2.0
+    let SNEK_MIN_SPEED = 1.0;  // was 0.5
+    let BALL_FREQUENCY_FACTOR = 6;
+    let POWERUP_FREQUENCY_FACTOR = 5;
+
+    let HUMAN_GRAVITY = 0.2;
+    let ENABLE_CHEATS = false;
+    let JETPACK_FORCE = 0.8;
+    let HUMAN_BASE_SPEED = 2;
+    let HUMAN_JUMP_FORCE = 6;
+    let HUMAN_MAX_FALL_SPEED = 8;
+    let MAX_JETPACK_FUEL = 80;
+    let jetpackFuel = 80;
+    let JETPACK_USAGE_RATE = 1.0;
+    let JETPACK_RECHARGE_RATE = 0.5;
+    let JETPACK_ACCELERATION = 0.4;
+    let JETPACK_MAX_SPEED = 3.0;
+    
+    let PLATFORM_COUNT = 18; 
+    let PLATFORM_BOUNCE_MULT = 0.7;
+
+    // We'll read the landingTimerRefill from user input
+    let landingTimerRefill = 0.0125;
+
+    let lives = 5;
+    let score = 0;
+    let scoreMultiplier = 1;
+
+    // Base durations
+    const POWERUP_DURATION = 2700; // frames
+    const POWERUP_TTL = 2700;      
+
+    const SNEK_SEGMENTS = 3;
+    const SNEK_SEGMENT_LENGTH = 15;
+
+    // For boss round, we'll spawn multiple cobras
+    let sneks = [];
+    let cobra = null;
+    let cobraBullets = [];
+    let cobras = []; 
+
+    let cobraHDirTimer = 0;
+    let cobraVDirTimer = 0;
+    let COBRA_DIR_MIN = 180;
+    let COBRA_DIR_MAX = 600;
+
+    // Add these two lines globally:
+    let COBRA_SHOT_MIN = 400;  // Default for normal cobra
+    let COBRA_SHOT_MAX = 700;
+
+    let timeToNextCobraShot = 0;
+    // Slightly faster bullets
+    let COBRA_BULLET_SPEED = 1.2;  // was 0.8
+    const COBRA_BULLET_SIZE = 10;
+
+    const BALL_SIZE = 20;
+    const BALL_BOUNCE_MULT = 0.7;
+    const BALL_MIN_SPEED = 1;
+    const BALL_MAX_SPEED = 2;
+    const BALL_MIN_VX = -1;
+    const BALL_MAX_VX =  1;
+    let BALL_SPAWN_TIME_MIN = 350;
+    let BALL_SPAWN_TIME_MAX = 700;
+    let balls = [];
+    let timeToNextBall = 0;
+    let ballSpeedMultiplier = 1;
+
+    let platforms = [];
+    let skyOffset = 0;
+    let cloudOffset = 0;
+    const DAY_CYCLE_SPEED = 0.01;
+    let dayCycle = 0;
+
+    // We'll store the player's last known center position
+    // so that cobras can shoot at it:
+    let playerLastX = 0;
+    let playerLastY = 0;
+
+    let keysDown = {};
+    let activePowerUps = [];
+
+    let chosenAvatar = "whiteStick";
+    let human = {
+      x: 0,
+      y: 0,
+      baseWidth: 40,
+      baseHeight: 40,
+      width: 40,
+      height: 40,
+      vx: 0,
+      vy: 0,
+      flashCounter: 0,
+      weapon: "Fists",
+      powerUpName: "None",
+      canJump: true,
+      colorOverride: ""
+    };
+
+    let MUSIC_VOLUME = 0.4;
+    let musicLoop;
+    let powerUpSound;
+    let SKILL_MULTIPLIER = 1.0;
+
+    /* ============================================
+     *   HELPER: Check if we are in boss round
+     * ============================================ */
+    function isBossRound(){
+      return (currentRound === BOSS_ROUND);
+    }
+
+    /* ============================================
+     *   AUDIO SETUP (placeholder)
+     * ============================================ */
+    function loadSoundBase64(base64Data, loop=false, volume=1.0) {
+      const audio = new Audio(base64Data);
+      audio.loop = loop;
+      audio.volume = volume;
+      return audio;
+    }
+
+    function initAudio() {
+      // Dummy base64 placeholders
+      const base64Music = "data:audio/mp3;base64,AAAAGGZ0eXAzZAAAAABDb3B5AAAAGGZ0eXAzZAAAAABDb3B5AAAAAA==";
+      const base64PowerUp = "data:audio/wav;base64,UklGRi4AAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAB9C+//wAA";
+
+      musicLoop = loadSoundBase64(base64Music, true, MUSIC_VOLUME);
+      powerUpSound = loadSoundBase64(base64PowerUp, false, 1.0);
+    }
+
+    /* ============================================
+     *   INITIALIZATION
+     * ============================================ */
+    function initGame() {
+      score = 0;
+      lives = 5;
+      currentRound = 1;  
+      gameOver = false;
+      gameState = "playing";
+      lastTimestamp = 0;
+
+      initRound();
+      requestAnimationFrame(gameLoop); 
+    }
+
+    function initRound() {
+      timeRemaining = 45;
+      document.getElementById("gameOverScreen").style.display = "none";
+      document.getElementById("roundStatsScreen").style.display = "none";
+      document.getElementById("jetpackBarContainer").style.display = "block";
+      document.getElementById("debugOverlay").style.display = "none";
+
+      activePowerUps = [];
+      human.colorOverride = "";
+      human.powerUpName = "None";
+
+      // Clear arrays
+      sneks = [];
+      cobra = null;
+      cobras = [];
+      cobraBullets = [];
+      balls = [];
+
+      // Reset default cobra shot timings for normal rounds
+      COBRA_SHOT_MIN = 400;
+      COBRA_SHOT_MAX = 700;
+
+      if(isBossRound()){
+        // No normal sneks, generate multiple "boss cobras"
+        generateBossCobras();
+        // No "super" power-up for free, but let's add some freebies:
+        pickUpPowerUp("shield");
+        pickUpPowerUp("extrafuel");
+        pickUpPowerUp("unlimitedfuel");
+        // Give them a blaster
+        human.weapon = "Blaster";
+
+        // For boss we override shot timing to be faster
+        COBRA_SHOT_MIN = 100;
+        COBRA_SHOT_MAX = 200;
+      } else {
+        // Normal round: generate sneks + single cobra
+        generateSneks();
+        generateSingleCobra();
+      }
+
+      generatePlatforms();
+      resetHuman();
+
+      timeToNextBall = randomBetween(BALL_SPAWN_TIME_MIN, BALL_SPAWN_TIME_MAX);
+      ballSpeedMultiplier = 1;
+
+      timeToNextCobraShot = randomBetween(COBRA_DIR_MIN, COBRA_DIR_MAX); 
+      cobraHDirTimer = randomBetween(COBRA_DIR_MIN, COBRA_DIR_MAX);
+      cobraVDirTimer = randomBetween(COBRA_DIR_MIN, COBRA_DIR_MAX);
+
+      timeToNextPowerUp = randomBetween(400, 800);
+
+      if (ENABLE_CHEATS && !isBossRound()) {
+        human.weapon = "Blaster";
+      }
+
+      updateStatusBar();
+      document.getElementById("roundInfo").textContent = "Round: " + currentRound;
+
+      // Speed scaling for normal rounds
+      if (!isBossRound()){
+        if (currentRound >= 2) {
+          SNEK_MAX_SPEED = 3.0 + 0.2*(currentRound-1);
+        } else {
+          SNEK_MAX_SPEED = 3.0;
+        }
+        BALL_SPAWN_TIME_MIN = Math.max(100, 350 - 25*(currentRound-1));
+        BALL_SPAWN_TIME_MAX = Math.max(200, 700 - 25*(currentRound-1));
+      }
+    }
+
+    function generateSneks() {
+      let snekCount = currentRound < 3 ? 4 : 5;
+      for (let i = 0; i < snekCount; i++){
+        let s = createRandomSnek(i);
+        sneks.push(s);
+      }
+    }
+
+    function generateSingleCobra() {
+      let startSide = Math.random() < 0.5 ? "left" : "right";
+      let xPos = (startSide === "left") ? -50 : CANVAS_WIDTH + 50;
+      let yPos = randomBetween(50, CANVAS_HEIGHT - 150);
+
+      cobra = {
+        x: xPos,
+        y: yPos,
+        color: "yellow",
+        size: 25,
+        speedX: 0.6,
+        speedY: 0.4,
+        tailPositions: []
+      };
+      if(startSide === "right") {
+        cobra.speedX = -0.6;
+      }
+    }
+
+    // BOSS: multiple cobras with giant tails
+    function generateBossCobras(){
+      for(let i = 0; i < 3; i++){
+        let startSide = Math.random() < 0.5 ? "left" : "right";
+        let xPos = (startSide === "left") ? -50 : CANVAS_WIDTH + 50;
+        let yPos = randomBetween(100, CANVAS_HEIGHT - 200);
+
+        let c = {
+          x: xPos,
+          y: yPos,
+          color: "purple",
+          size: 40,
+          speedX: (Math.random() < 0.5 ? 1.5 : -1.5), // faster
+          speedY: 1.0,
+          tailPositions: []
+        };
+        cobras.push(c);
+      }
+      // We override the global shot min/max here again
+      COBRA_SHOT_MIN = 100;
+      COBRA_SHOT_MAX = 200;
+    }
+
+    function createRandomSnek(rowIndex) {
+      const laneHeight = (CANVAS_HEIGHT - 100) / 8;
+      const yPos = 50 + rowIndex * laneHeight + laneHeight / 2;
+      let direction = Math.random() < 0.5 ? 1 : -1;
+      let xPos = (direction === 1) ? -50 : (CANVAS_WIDTH + 50);
+      let speed = randomBetween(SNEK_MIN_SPEED, SNEK_MAX_SPEED) * direction;
+      let color = getRandomColor();
+      return {
+        x: xPos,
+        y: yPos,
+        speed: speed,
+        color: color,
+        tongueTimer: 0,
+        tongueOut: false,
+        boss: false
+      };
+    }
+
+    function generatePlatforms() {
+      platforms = [];
+      const minY = 100;
+      const maxY = CANVAS_HEIGHT - 150;
+      for (let i = 0; i < PLATFORM_COUNT; i++){
+        let tries = 0;
+        while(true){
+          tries++;
+          if (tries > 1000) break;
+          let yPos = randomBetween(minY, maxY);
+          let xPos = randomBetween(50, CANVAS_WIDTH - 150);
+          let tooClose = platforms.some(p => Math.abs(p.y - yPos) < 60);
+          if(!tooClose){
+            platforms.push({
+              x: xPos,
+              y: yPos,
+              width: 100 + (Math.random() * 60 - 30),
+              height: 10
+            });
+            break;
+          }
+        }
+      }
+      platforms.sort((a,b) => a.y - b.y);
+    }
+
+    function resetHuman() {
+      human.x = CANVAS_WIDTH / 2 - human.width / 2;
+      human.y = CANVAS_HEIGHT - human.height - 10;
+      human.vx = 0;
+      human.vy = 0;
+      human.flashCounter = 0;
+      human.canJump = true;
+      human.width = human.baseWidth;
+      human.height = human.baseHeight;
+      jetpackFuel = MAX_JETPACK_FUEL;
+      updateJetpackBar();
+    }
+
+    /* ============================================
+       REAL-TIME GAME LOOP
+     ============================================ */
+    function gameLoop(timestamp) {
+      if(!gameOver && gameState === "playing") {
+        if(!lastTimestamp) {
+          lastTimestamp = timestamp; 
+        }
+        const dt = (timestamp - lastTimestamp) / 1000;
+        lastTimestamp = timestamp;
+
+        update(dt);
+        draw();
+
+        requestAnimationFrame(gameLoop);
+      }
+    }
+
+    function update(dt) {
+      timeRemaining -= dt;
+      if(timeRemaining <= 0) {
+        endRound();
+        return;
+      }
+
+      // Track player's center as last known
+      playerLastX = human.x + human.width / 2;
+      playerLastY = human.y + human.height / 2;
+
+      handleInput();
+      updateHumanPhysics();
+      moveSneks();
+      animateSnakeTongues();
+
+      if(isBossRound()){
+        updateBossCobras();
+      } else {
+        updateCobra();
+      }
+
+      updateCobraBullets();
+      updateBalls();
+      updateSpawnedPowerUps();
+      updatePowerUpsTTL();
+      handleCollisions();
+      updateActivePowerUps();
+      updateStatusBar();
+      updateDebugOverlay();
+    }
+
+    function endRound(){
+      gameState = "roundStats";
+      addTimeRemainingBonus();
+      score = Math.floor(score * SKILL_MULTIPLIER);
+      showRoundStats();
+    }
+
+    function showRoundStats(){
+      document.getElementById("roundStatsScreen").style.display = "flex";
+      let msg = `You finished Round ${currentRound}.<br/>Score: ${score}<br/>Lives: ${lives}`;
+      document.getElementById("roundStatsMessage").innerHTML = msg;
+    }
+
+    function startNextRound(){
+      document.getElementById("roundStatsScreen").style.display = "none";
+      currentRound++;
+      if(currentRound > MAX_ROUNDS){
+        endGameMessage("Victory!<br/>You've beaten all rounds!<br/><br/>Final Score: " + score);
+        return;
+      }
+      gameState = "playing";
+      initRound();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function loseLifeAndReset(){
+      lives--;
+      if(lives <= 0){
+        endGameMessage("Game Over!<br/>Final Score: " + score);
+      } else {
+        resetHuman();
+      }
+    }
+
+    function addTimeRemainingBonus() {
+      let timeBonus = Math.floor(46 - timeRemaining);
+      if(timeBonus < 1) timeBonus = 1;
+      score += timeBonus;
+    }
+
+    /* ============================================
+       INPUT
+     ============================================ */
+    function handleInput(){
+      if(keysDown["ArrowLeft"] || keysDown["a"]){
+        human.x -= HUMAN_BASE_SPEED; 
+      }
+      if(keysDown["ArrowRight"] || keysDown["d"]){
+        human.x += HUMAN_BASE_SPEED; 
+      }
+      if(keysDown[" "]) {
+        if(human.canJump){
+          human.vy = -HUMAN_JUMP_FORCE;
+          human.canJump = false;
+        }
+        // Jetpack logic
+        if(isPowerUpActive("unlimitedfuel")){
+          human.vy -= JETPACK_ACCELERATION;
+          if(human.vy < -JETPACK_MAX_SPEED){
+            human.vy = -JETPACK_MAX_SPEED;
+          }
+        } else {
+          if(jetpackFuel > 0){
+            human.vy -= JETPACK_ACCELERATION;
+            if(human.vy < -JETPACK_MAX_SPEED){
+              human.vy = -JETPACK_MAX_SPEED;
+            }
+            jetpackFuel -= JETPACK_USAGE_RATE;
+            if(jetpackFuel < 0) jetpackFuel = 0;
+          }
+        }
+      } else {
+        if(jetpackFuel < MAX_JETPACK_FUEL && !isPowerUpActive("unlimitedfuel")){
+          jetpackFuel += JETPACK_RECHARGE_RATE;
+          if(jetpackFuel > MAX_JETPACK_FUEL) jetpackFuel = MAX_JETPACK_FUEL;
+        }
+      }
+    }
+
+    function updateHumanPhysics(){
+      human.vy += HUMAN_GRAVITY;
+      if(human.vy > HUMAN_MAX_FALL_SPEED){
+        human.vy = HUMAN_MAX_FALL_SPEED;
+      }
+      let oldY = human.y;
+      human.y += human.vy;
+
+      // If you fly off top, you finish the round
+      if(human.y + human.height < 0){
+        endRound();
+        return;
+      }
+
+      let landedOnSomething = false;
+      if(human.vy >= 0){
+        for(let p of platforms){
+          if(human.x + human.width > p.x && human.x < p.x + p.width){
+            if(oldY + human.height <= p.y && human.y + human.height >= p.y){
+              human.y = p.y - human.height;
+              human.vy = -human.vy * PLATFORM_BOUNCE_MULT;
+              timeRemaining = Math.min(timeRemaining + landingTimerRefill, 45);
+              landedOnSomething = true;
+              break;
+            }
+          }
+        }
+      }
+      if(human.y + human.height > CANVAS_HEIGHT){
+        human.y = CANVAS_HEIGHT - human.height;
+        human.vy = 0;
+        landedOnSomething = true;
+      }
+      if(landedOnSomething){
+        human.canJump = true;
+      }
+      if(human.x < 0) human.x = 0;
+      if(human.x + human.width > CANVAS_WIDTH) human.x = CANVAS_WIDTH - human.width;
+    }
+
+    function updateJetpackBar(){
+      const bar = document.getElementById("jetpackFuelBar");
+      let pct = (jetpackFuel / MAX_JETPACK_FUEL) * 100;
+      bar.style.height = pct + "%";
+    }
+
+    /* ============================================
+       SNEKS
+     ============================================ */
+    function moveSneks(){
+      for(let snek of sneks){
+        snek.x += snek.speed;
+        if(!snek.boss){
+          if(snek.speed > 0 && snek.x > CANVAS_WIDTH + 100){
+            snek.x = -100;
+          } else if(snek.speed < 0 && snek.x < -100){
+            snek.x = CANVAS_WIDTH + 100;
+          }
+        }
+      }
+    }
+
+    function animateSnakeTongues(){
+      for(let snek of sneks){
+        snek.tongueTimer++;
+        if(snek.tongueTimer > 60){
+          snek.tongueTimer = 0;
+          snek.tongueOut = !snek.tongueOut;
+        }
+      }
+    }
+
+    /* ============================================
+       COBRA LOGIC
+     ============================================ */
+    function updateCobra(){
+      if(!cobra) return;
+
+      cobraHDirTimer--;
+      if(cobraHDirTimer <= 0) {
+        let sign = (Math.random() < 0.5) ? -1 : 1;
+        cobra.speedX = Math.abs(cobra.speedX) * sign;
+        cobraHDirTimer = randomBetween(COBRA_DIR_MIN, COBRA_DIR_MAX);
+      }
+
+      cobraVDirTimer--;
+      if(cobraVDirTimer <= 0) {
+        let vsign = (Math.random() < 0.5) ? -1 : 1;
+        cobra.speedY = Math.abs(cobra.speedY) * vsign;
+        cobraVDirTimer = randomBetween(COBRA_DIR_MIN, COBRA_DIR_MAX);
+      }
+
+      cobra.x += cobra.speedX;
+      cobra.y += cobra.speedY;
+
+      // Bounds
+      if(cobra.y < 50) {
+        cobra.y = 50;
+        cobra.speedY = Math.abs(cobra.speedY);
+      }
+      if(cobra.y > CANVAS_HEIGHT - 100) {
+        cobra.y = CANVAS_HEIGHT - 100;
+        cobra.speedY = -Math.abs(cobra.speedY);
+      }
+
+      cobra.tailPositions.unshift({x: cobra.x, y: cobra.y});
+      if(cobra.tailPositions.length > 20){
+        cobra.tailPositions.pop();
+      }
+
+      timeToNextCobraShot--;
+      if(timeToNextCobraShot <= 0) {
+        // Single shot at player's last known position
+        shootCobraBullet(cobra, false);
+        timeToNextCobraShot = randomBetween(COBRA_SHOT_MIN, COBRA_SHOT_MAX);
+      }
+    }
+
+    function updateBossCobras(){
+      for(let c of cobras){
+        if(Math.random() < 0.01){
+          c.speedX *= -1;
+        }
+        if(Math.random() < 0.01){
+          c.speedY *= -1;
+        }
+
+        c.x += c.speedX;
+        c.y += c.speedY;
+
+        if(c.y < 50) {
+          c.y = 50;
+          c.speedY = Math.abs(c.speedY);
+        }
+        if(c.y > CANVAS_HEIGHT - 100) {
+          c.y = CANVAS_HEIGHT - 100;
+          c.speedY = -Math.abs(c.speedY);
+        }
+
+        c.tailPositions.unshift({x: c.x, y: c.y});
+
+        // Boss tails up to ~100 segments (over half the screen)
+        if(c.tailPositions.length > 100){
+          c.tailPositions.pop();
+        }
+      }
+
+      timeToNextCobraShot--;
+      if(timeToNextCobraShot <= 0){
+        // Choose a random boss cobra to shoot
+        let shooter = cobras[Math.floor(Math.random() * cobras.length)];
+        // 50% chance for double shot
+        let doubleShot = (Math.random() < 0.5);
+        shootCobraBullet(shooter, doubleShot);
+        timeToNextCobraShot = randomBetween(COBRA_SHOT_MIN, COBRA_SHOT_MAX);
+      }
+    }
+
+    // Shoots bullet(s) at the player's last known position
+    function shootCobraBullet(cobraObj, multishot=false) {
+      if(!cobraObj) return;
+
+      if(!multishot){
+        spawnCobraBullet(cobraObj, playerLastX, playerLastY);
+      } else {
+        spawnCobraBullet(cobraObj, playerLastX, playerLastY);
+        spawnCobraBullet(cobraObj, playerLastX, playerLastY);
+      }
+    }
+
+    // Aim bullet from Cobra position to (targetX, targetY)
+    function spawnCobraBullet(cobraObj, targetX, targetY){
+      let dx = targetX - cobraObj.x;
+      let dy = targetY - cobraObj.y;
+      let angle = Math.atan2(dy, dx);
+
+      cobraBullets.push({
+        x: cobraObj.x,
+        y: cobraObj.y,
+        vx: Math.cos(angle) * COBRA_BULLET_SPEED,
+        vy: Math.sin(angle) * COBRA_BULLET_SPEED,
+        size: COBRA_BULLET_SIZE,
+        color: "red",
+      });
+    }
+
+    function updateCobraBullets() {
+      for(let bullet of cobraBullets){
+        bullet.x += bullet.vx;
+        bullet.y += bullet.vy;
+      }
+      cobraBullets = cobraBullets.filter(b => 
+        b.x > -50 && b.x < CANVAS_WIDTH + 50 && b.y > -50 && b.y < CANVAS_HEIGHT + 50
+      );
+    }
+
+    /* ============================================
+       BALLS (falling rocks)
+     ============================================ */
+    function updateBalls(){
+      timeToNextBall--;
+      if(timeToNextBall <= 0){
+        spawnBall();
+        timeToNextBall = randomBetween(BALL_SPAWN_TIME_MIN, BALL_SPAWN_TIME_MAX);
+      }
+
+      for(let b of balls){
+        if(b.vy === undefined) b.vy = 0;
+        if(b.vx === undefined) b.vx = randomBetween(BALL_MIN_VX, BALL_MAX_VX);
+        b.x += b.vx;
+
+        b.vy += HUMAN_GRAVITY * 0.5;
+        b.y += b.vy;
+
+        if(b.y + b.size > CANVAS_HEIGHT) {
+          b.y = CANVAS_HEIGHT - b.size;
+          b.vy = -b.vy * BALL_BOUNCE_MULT;
+          b.vx = randomBetween(BALL_MIN_VX * 2, BALL_MAX_VX * 2);
+        }
+
+        for(let p of platforms){
+          if(b.x + b.size > p.x && b.x < p.x + p.width){
+            if(b.y + b.size <= p.y && (b.y + b.size + b.vy) >= p.y){
+              b.y = p.y - b.size;
+              b.vy = -b.vy * BALL_BOUNCE_MULT;
+              b.vx = randomBetween(BALL_MIN_VX * 2, BALL_MAX_VX * 2);
+            }
+          }
+        }
+      }
+    }
+
+    function spawnBall(){
+      balls.push({
+        x: randomBetween(0, CANVAS_WIDTH - BALL_SIZE),
+        y: -50,
+        size: BALL_SIZE,
+        color: getRandomColor(),
+        vx: randomBetween(BALL_MIN_VX, BALL_MAX_VX),
+        vy: 0
+      });
+    }
+
+    /* ============================================
+       POWER-UPS
+     ============================================ */
+    let timeToNextPowerUp = 0;
+    function updateSpawnedPowerUps(){
+      timeToNextPowerUp--;
+      if(timeToNextPowerUp <= 0){
+        if(powerUps.length < MAX_POWERUPS_ONSCREEN){
+          spawnPowerUp();
+        }
+        timeToNextPowerUp = randomBetween(400, 800);
+      }
+    }
+
+    function spawnPowerUp(){
+      let types = ["super", "shield", "extrafuel", "unlimitedfuel"];
+      let chosenType = types[Math.floor(Math.random() * types.length)];
+      let xPos = randomBetween(50, CANVAS_WIDTH - 50);
+      let yPos = randomBetween(50, CANVAS_HEIGHT - 150);
+
+      powerUps.push({
+        x: xPos,
+        y: yPos,
+        width: 30,
+        height: 30,
+        type: chosenType,
+        ttl: POWERUP_TTL
+      });
+    }
+
+    function updatePowerUpsTTL(){
+      for(let pu of powerUps){
+        pu.ttl--;
+      }
+      powerUps = powerUps.filter(pu => pu.ttl > 0);
+    }
+
+    /* ============================================
+       COLLISIONS
+     ============================================ */
+    function handleCollisions(){
+      const playerRect = {
+        x: human.x,
+        y: human.y,
+        width: human.width,
+        height: human.height
+      };
+
+      // 1) Power-ups
+      for (let i = powerUps.length - 1; i >= 0; i--) {
+        const pu = powerUps[i];
+        const puRect = {
+          x: pu.x,
+          y: pu.y,
+          width: pu.width,
+          height: pu.height
+        };
+        if (rectCollision(playerRect, puRect)) {
+          pickUpPowerUp(pu.type);
+          score += 25; 
+          powerUps.splice(i, 1);
+          if(powerUpSound){
+            powerUpSound.currentTime = 0;
+            powerUpSound.play();
+          }
+        }
+      }
+
+      // 2) Sneks
+      for (let i = sneks.length - 1; i >= 0; i--) {
+        let snek = sneks[i];
+        let segmentCount = snek.boss ? 6 : (SNEK_SEGMENTS + 1);
+        let totalLength = segmentCount * SNEK_SEGMENT_LENGTH;
+        let snekRect = {
+          x: snek.x,
+          y: snek.y - 10,
+          width: totalLength,
+          height: 20
+        };
+
+        if (rectCollision(playerRect, snekRect)) {
+          if(human.weapon === "Blaster" || isPowerUpActive("super")){
+            sneks.splice(i, 1);
+            score += 50; 
+          }
+          else if (!isPowerUpActive("shield")){
+            loseLifeAndReset();
+            return;
+          } else {
+            removePowerUp("shield");
+          }
+        }
+      }
+
+      // 3) Cobras
+      if(isBossRound()){
+        for(let i = 0; i < cobras.length; i++){
+          let c = cobras[i];
+          let cRect = getCobraRect(c);
+          if(rectCollision(playerRect, cRect)){
+            if(human.weapon === "Blaster" || isPowerUpActive("super")){
+              cobras.splice(i, 1);
+              score += 300; 
+              i--;
+            }
+            else if(!isPowerUpActive("shield")){
+              loseLifeAndReset();
+              return;
+            } else {
+              removePowerUp("shield");
+            }
+          }
+        }
+        // If we killed all boss cobras, we end
+        if(cobras.length === 0){
+          endRound();
+        }
+      } else {
+        // Single cobra
+        if (cobra) {
+          const cRect = getCobraRect(cobra);
+          if (rectCollision(playerRect, cRect)) {
+            if(human.weapon === "Blaster" || isPowerUpActive("super")){
+              cobra = null;
+              score += 200; 
+            }
+            else if (!isPowerUpActive("shield")) {
+              loseLifeAndReset();
+              return;
+            } else {
+              removePowerUp("shield");
+            }
+          }
+        }
+      }
+
+      // 4) Cobra bullets
+      for (let i = cobraBullets.length - 1; i >= 0; i--) {
+        let bullet = cobraBullets[i];
+        let bulletRect = {
+          x: bullet.x - bullet.size / 2,
+          y: bullet.y - bullet.size / 2,
+          width: bullet.size,
+          height: bullet.size
+        };
+        if (rectCollision(playerRect, bulletRect)) {
+          if (!isPowerUpActive("shield")) {
+            loseLifeAndReset();
+            return;
+          } else {
+            removePowerUp("shield");
+            cobraBullets.splice(i, 1);
+          }
+        }
+      }
+
+      // 5) Balls
+      for(let b of balls){
+        let ballRect = {
+          x: b.x,
+          y: b.y,
+          width: b.size,
+          height: b.size
+        };
+        if(rectCollision(playerRect, ballRect)){
+          if(!isPowerUpActive("shield") && !isPowerUpActive("super")){
+            loseLifeAndReset(); 
+            return;
+          } else if(isPowerUpActive("shield")){
+            removePowerUp("shield");
+          }
+        }
+      }
+    }
+
+    function getCobraRect(c){
+      let half = c.size;
+      return {
+        x: c.x - half,
+        y: c.y - half,
+        width: half * 2,
+        height: half * 2
+      };
+    }
+
+    function pickUpPowerUp(type){
+      let customDuration = (type === "super") ? POWERUP_DURATION / 2 : POWERUP_DURATION;
+      let existing = activePowerUps.find(p => p.type === type);
+      if(existing){
+        existing.timer += customDuration;
+      } else {
+        activePowerUps.push({ type, timer: customDuration });
+      }
+    }
+
+    function removePowerUp(type){
+      activePowerUps = activePowerUps.filter(p => p.type !== type);
+    }
+
+    function isPowerUpActive(type){
+      return activePowerUps.some(p => p.type === type && p.timer > 0);
+    }
+
+    function updateActivePowerUps(){
+      activePowerUps.forEach(p => p.timer--);
+      activePowerUps = activePowerUps.filter(p => p.timer > 0);
+
+      human.width = human.baseWidth;
+      human.height = human.baseHeight;
+      human.colorOverride = "";
+
+      if(isPowerUpActive("super")){
+        human.width *= 1.5;
+        human.height *= 1.5;
+      }
+      if(isPowerUpActive("extrafuel")){
+        human.width *= 1.2;
+        human.height *= 1.2;
+      }
+      if(isPowerUpActive("shield")){
+        human.width *= 1.1;
+        human.height *= 1.1;
+      }
+      if(isPowerUpActive("unlimitedfuel")){
+        human.width *= 1.2;
+        human.height *= 1.2;
+      }
+
+      // Display power-up name
+      if(isPowerUpActive("super")){
+        human.powerUpName = "SUPER Mode";
+      }
+      else if(isPowerUpActive("unlimitedfuel")){
+        human.powerUpName = "Unlimited Fuel";
+      }
+      else if(isPowerUpActive("shield")){
+        human.powerUpName = "SHIELD";
+      }
+      else if(isPowerUpActive("extrafuel")){
+        human.powerUpName = "EXTRA FUEL";
+      }
+      else {
+        human.powerUpName = "None";
+      }
+    }
+
+    /* ============================================
+       DRAWING
+     ============================================ */
+    function draw(){
+      drawParallaxBackground();
+      drawFancyGround();
+
+      drawPlatforms();
+      drawSneks();
+
+      if(isBossRound()){
+        drawBossCobras();
+      } else {
+        drawSingleCobra();
+      }
+
+      drawPowerUps();
+      drawBalls();
+      drawCobraBullets();
+      drawHuman();
+
+      document.getElementById("score").textContent = "Score: " + score;
+      document.getElementById("lives").textContent = "Lives: " + lives;
+      document.getElementById("roundInfo").textContent = "Round: " + currentRound;
+      document.getElementById("levelTimer").textContent = timeRemaining.toFixed(1);
+    }
+
+    function drawParallaxBackground(){
+      let gradient = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT);
+      gradient.addColorStop(0, '#81c6ff');
+      gradient.addColorStop(0.5, '#cceeff');
+      gradient.addColorStop(1, '#ffffff');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+      ctx.save();
+      ctx.fillStyle = "rgba(255,255,255,0.3)";
+      for(let i = 0; i < 5; i++){
+        let x = (i * 300 + cloudOffset * 5) % (CANVAS_WIDTH + 300) - 300;
+        let y = 100 + i * 30;
+        ctx.beginPath();
+        ctx.ellipse(x, y, 100, 30, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function drawFancyGround() {
+      let groundGrad = ctx.createLinearGradient(0, CANVAS_HEIGHT - 100, 0, CANVAS_HEIGHT);
+      groundGrad.addColorStop(0, '#996633');
+      groundGrad.addColorStop(1, '#663300');
+      ctx.fillStyle = groundGrad;
+      ctx.fillRect(0, CANVAS_HEIGHT - 100, CANVAS_WIDTH, 100);
+    }
+
+    function drawPlatforms() {
+      for(let p of platforms) {
+        let grad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.height);
+        grad.addColorStop(0, "#666");
+        grad.addColorStop(1, "#222");
+        ctx.fillStyle = grad;
+        ctx.fillRect(p.x, p.y, p.width, p.height);
+
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(p.x, p.y, p.width, p.height);
+      }
+    }
+
+    function drawSneks() {
+      for(let snek of sneks){
+        let segmentCount = snek.boss ? 6 : (SNEK_SEGMENTS + 1);
+        let totalLength = segmentCount * SNEK_SEGMENT_LENGTH;
+        
+        // Light gradient for snek body
+        let bodyGrad = ctx.createLinearGradient(snek.x, snek.y - 10, snek.x, snek.y + 10);
+        bodyGrad.addColorStop(0, lightenColor(snek.color, 0.3));
+        bodyGrad.addColorStop(1, snek.color);
+
+        ctx.fillStyle = bodyGrad;
+        ctx.fillRect(snek.x, snek.y - 10, totalLength, 20);
+
+        if(snek.tongueOut){
+          ctx.strokeStyle = "red";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          if(snek.speed >= 0){
+            ctx.moveTo(snek.x + totalLength, snek.y);
+            ctx.lineTo(snek.x + totalLength + 10, snek.y);
+          } else {
+            ctx.moveTo(snek.x, snek.y);
+            ctx.lineTo(snek.x - 10, snek.y);
+          }
+          ctx.stroke();
+        }
+
+        // Eyes
+        ctx.save();
+        ctx.fillStyle = "#000";
+        let headX = snek.speed >= 0 ? (snek.x + totalLength - 6) : (snek.x + 6);
+        let eyeY  = snek.y - 5; 
+        ctx.beginPath();
+        ctx.arc(headX, eyeY, 2, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(headX, eyeY + 6, 2, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function drawSingleCobra(){
+      if(!cobra) return;
+      drawCobraTail(cobra, 20);
+      drawCobraHead(cobra, true); 
+    }
+
+    function drawBossCobras(){
+      for(let c of cobras){
+        drawCobraTail(c, 100); // up to 100 segments
+        drawCobraHead(c, false);
+      }
+    }
+
+    function drawCobraTail(cobraObj, maxTailLength){
+      for(let i = 0; i < cobraObj.tailPositions.length; i++){
+        let seg = cobraObj.tailPositions[i];
+        let fraction = i / cobraObj.tailPositions.length;
+        ctx.save();
+        ctx.globalAlpha = 1.0 - fraction * 0.8;
+        let tailSize = cobraObj.size * (1 - fraction * 0.3);
+
+        // Radial gradient for nice effect
+        const tailGrad = ctx.createRadialGradient(
+          seg.x, seg.y, tailSize * 0.1,
+          seg.x, seg.y, tailSize / 2
+        );
+        tailGrad.addColorStop(0, lightenColor(cobraObj.color, 0.5));
+        tailGrad.addColorStop(1, cobraObj.color);
+
+        ctx.fillStyle = tailGrad;
+        ctx.beginPath();
+        ctx.arc(seg.x, seg.y, tailSize / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      if(cobraObj.tailPositions.length > 0){
+        let lastSeg = cobraObj.tailPositions[cobraObj.tailPositions.length - 1];
+        ctx.save();
+        ctx.translate(lastSeg.x, lastSeg.y);
+        ctx.fillStyle = cobraObj.color;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-10, 5);
+        ctx.lineTo(-10, -5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function drawCobraHead(cobraObj, checkFacingRight){
+      let facingRight = true;
+      if(checkFacingRight && cobraObj.tailPositions.length >= 2){
+        let hx = cobraObj.tailPositions[0].x;
+        let px = cobraObj.tailPositions[1].x;
+        facingRight = (hx >= px);
+      }
+
+      ctx.save();
+      ctx.translate(cobraObj.x, cobraObj.y);
+      if(!facingRight) ctx.scale(-1, 1);
+
+      ctx.beginPath();
+      ctx.fillStyle = cobraObj.color;
+      ctx.moveTo(0, -cobraObj.size * 0.8);
+      ctx.lineTo(cobraObj.size, 0);
+      ctx.lineTo(0, cobraObj.size * 0.8);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "#000";
+      ctx.fillRect(cobraObj.size - 7, -2, 3, 3);
+
+      ctx.restore();
+    }
+
+    function drawPowerUps(){
+      for(let pu of powerUps){
+        ctx.save();
+        ctx.shadowColor = "#fff";
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+
+        ctx.translate(pu.x + pu.width / 2, pu.y + pu.height / 2);
+
+        if(pu.type === "super"){
+          ctx.fillStyle = "#FFD700";
+          ctx.beginPath();
+          let spikes = 5;
+          let outerRadius = pu.width / 2;
+          let innerRadius = outerRadius / 2;
+          let rot = Math.PI / 2 * 3;
+          let step = Math.PI / spikes;
+          ctx.moveTo(0, -outerRadius);
+          for(let i=0; i<spikes; i++){
+            let x = Math.cos(rot) * outerRadius;
+            let y = Math.sin(rot) * outerRadius;
+            ctx.lineTo(x, y);
+            rot += step;
+            x = Math.cos(rot) * innerRadius;
+            y = Math.sin(rot) * innerRadius;
+            ctx.lineTo(x, y);
+            rot += step;
+          }
+          ctx.lineTo(0, -outerRadius);
+          ctx.closePath();
+          ctx.fill();
+        }
+        else if(pu.type === "extrafuel"){
+          ctx.fillStyle = "orange";
+          ctx.beginPath();
+          ctx.moveTo(0, -10);
+          ctx.bezierCurveTo(-12, -20, -25, 0, 0, 15);
+          ctx.bezierCurveTo(25, 0, 12, -20, 0, -10);
+          ctx.closePath();
+          ctx.fill();
+        }
+        else if(pu.type === "shield"){
+          ctx.fillStyle = "rgba(0,255,255,0.5)";
+          ctx.beginPath();
+          ctx.arc(0, 0, pu.width / 2, 0, 2*Math.PI);
+          ctx.fill();
+        }
+        else if(pu.type === "unlimitedfuel"){
+          ctx.fillStyle = "#FF69B4";
+          ctx.beginPath();
+          ctx.moveTo(0, -10);
+          ctx.bezierCurveTo(-10, -25, -25, -5, 0, 10);
+          ctx.bezierCurveTo(25, -5, 10, -25, 0, -10);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+    }
+
+    function drawBalls(){
+      for(let b of balls){
+        ctx.save();
+        ctx.fillStyle = b.color;
+        ctx.beginPath();
+        ctx.arc(b.x + b.size/2, b.y + b.size/2, b.size/2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function drawCobraBullets(){
+      for(let bullet of cobraBullets){
+        ctx.save();
+        ctx.fillStyle = bullet.color;
+        ctx.beginPath();
+        ctx.arc(bullet.x, bullet.y, bullet.size/2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function drawHuman(){
+      ctx.save();
+      let flashing = isPowerUpActive("super") && Math.floor(human.flashCounter / 10) % 2 === 0;
+      human.flashCounter++;
+
+      // subtle shadow
+      ctx.fillStyle = "rgba(0,0,0,0.2)";
+      ctx.beginPath();
+      ctx.ellipse(human.x + human.width/2, human.y + human.height, human.width*0.5, human.height*0.1, 0, 0, 2*Math.PI);
+      ctx.fill();
+
+      let fillColor = "#FFF";
+      if(human.colorOverride) {
+        fillColor = human.colorOverride;
+      }
+      if(flashing) {
+        fillColor = "#FFFF00";
+      }
+
+      // radial gradient for body
+      const bodyGrad = ctx.createRadialGradient(
+        human.x + human.width/2, human.y + human.height/2, human.width*0.1,
+        human.x + human.width/2, human.y + human.height/2, human.width*0.8
+      );
+      bodyGrad.addColorStop(0, fillColor);
+      bodyGrad.addColorStop(1, "#666");
+
+      ctx.fillStyle = bodyGrad;
+      ctx.beginPath();
+      ctx.arc(human.x + human.width / 2, human.y + human.height / 2,
+              human.width / 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // eyes
+      ctx.fillStyle = "#000";
+      ctx.beginPath();
+      ctx.arc(human.x + human.width/2 - (human.width/6),
+              human.y + human.height/2 - (human.height/6),
+              human.width/16, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(human.x + human.width/2 + (human.width/6),
+              human.y + human.height/2 - (human.height/6),
+              human.width/16, 0, Math.PI * 2);
+      ctx.fill();
+
+      // mouth
+      ctx.beginPath();
+      ctx.arc(human.x + human.width/2,
+              human.y + human.height/2 + (human.height/6),
+              human.width/4, 0, Math.PI, false);
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // shield outline if active
+      if(isPowerUpActive("shield")){
+        ctx.strokeStyle = "cyan";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(human.x + human.width/2, human.y + human.height/2,
+                human.width/2 + 10, 0, 2 * Math.PI);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    /* ============================================
+       UTILITY
+     ============================================ */
+    function rectCollision(r1, r2){
+      return !(r1.x > r2.x + r2.width ||
+               r1.x + r1.width < r2.x ||
+               r1.y > r2.y + r2.height ||
+               r1.y + r1.height < r2.y);
+    }
+
+    function randomBetween(min, max){
+      return Math.random() * (max - min) + min;
+    }
+
+    // Lighten color utility
+    function lightenColor(color, amount) {
+      // color is something like "rgb(r,g,b)" or "#abcdef"
+      if(color.startsWith("rgb")){
+        let nums = color.match(/\d+/g);
+        let r = parseInt(nums[0]);
+        let g = parseInt(nums[1]);
+        let b = parseInt(nums[2]);
+        r = Math.min(255, Math.floor(r + (255 - r)*amount));
+        g = Math.min(255, Math.floor(g + (255 - g)*amount));
+        b = Math.min(255, Math.floor(b + (255 - b)*amount));
+        return `rgb(${r},${g},${b})`;
+      }
+      return color;
+    }
+
+    function getRandomColor(){
+      let r = Math.floor(Math.random() * 156) + 100;
+      let g = Math.floor(Math.random() * 156) + 100;
+      let b = Math.floor(Math.random() * 156) + 100;
+      return `rgb(${r},${g},${b})`;
+    }
+
+    function updateStatusBar(){
+      document.getElementById("weaponStatus").textContent = human.weapon;
+      document.getElementById("powerUpStatus").textContent = human.powerUpName;
+
+      let secs = 0;
+      activePowerUps.forEach(p => {
+        let s = (p.timer / 60);
+        if(s > secs) secs = s;
+      });
+      document.getElementById("powerUpTimer").textContent = secs.toFixed(1);
+      document.getElementById("fuelStatus").textContent = Math.floor(jetpackFuel);
+      document.getElementById("score").textContent = "Score: " + score;
+      document.getElementById("lives").textContent = "Lives: " + lives;
+      updateJetpackBar();
+    }
+
+    function updateDebugOverlay(){
+      document.getElementById("dbg_gravity").textContent = HUMAN_GRAVITY.toFixed(2);
+      document.getElementById("dbg_jetpackForce").textContent = JETPACK_FORCE.toFixed(2);
+      document.getElementById("dbg_maxJetpackFuel").textContent = MAX_JETPACK_FUEL;
+      document.getElementById("dbg_usageRate").textContent = JETPACK_USAGE_RATE.toFixed(2);
+      document.getElementById("dbg_rechargeRate").textContent = JETPACK_RECHARGE_RATE.toFixed(2);
+      document.getElementById("dbg_humanBaseSpeed").textContent = HUMAN_BASE_SPEED.toFixed(2);
+      document.getElementById("dbg_humanJumpForce").textContent = HUMAN_JUMP_FORCE.toFixed(2);
+      document.getElementById("dbg_humanMaxFallSpeed").textContent = HUMAN_MAX_FALL_SPEED.toFixed(2);
+      document.getElementById("dbg_snekMaxSpeed").textContent = SNEK_MAX_SPEED.toFixed(2);
+      document.getElementById("dbg_snekMinSpeed").textContent = SNEK_MIN_SPEED.toFixed(2);
+      document.getElementById("dbg_platformCount").textContent = PLATFORM_COUNT;
+      document.getElementById("dbg_platformBounceMult").textContent = PLATFORM_BOUNCE_MULT.toFixed(2);
+      document.getElementById("dbg_ballFreq").textContent = BALL_FREQUENCY_FACTOR;
+      document.getElementById("dbg_powerupFreq").textContent = POWERUP_FREQUENCY_FACTOR;
+      document.getElementById("dbg_jetpackAcceleration").textContent = JETPACK_ACCELERATION.toFixed(2);
+      document.getElementById("dbg_jetpackMaxSpeed").textContent = JETPACK_MAX_SPEED.toFixed(2);
+    }
+
+    // ============== Confetti on Victory ==============
+    function spawnConfetti() {
+      for (let i = 0; i < 30; i++) {
+        let confetti = document.createElement("div");
+        confetti.classList.add("confetti");
+        confetti.style.left = Math.random() * 100 + "%";
+        confetti.style.backgroundColor = randomConfettiColor();
+        confetti.style.animationDelay = (Math.random() * 2) + "s";
+        document.body.appendChild(confetti);
+      }
+    }
+
+    function randomConfettiColor() {
+      const colors = ["#f39c12","#f1c40f","#e67e22","#e74c3c","#9b59b6","#3498db","#1abc9c","#2ecc71","#ecf0f1"];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function endGameMessage(msg){
+      gameOver = true;
+      document.getElementById("finalScore").innerHTML = msg;
+      document.getElementById("gameOverScreen").style.display = "flex";
+      if (msg.includes("Victory!")) {
+        spawnConfetti();
+      }
+    }
+
+    /* ============================================
+       EVENT LISTENERS
+     ============================================ */
+    document.getElementById("skillLevel").addEventListener("change", function(){
+      const skill = this.value;
+      if(skill === "easy") {
+        document.getElementById("maxJetpackFuel").value = 400;
+        SKILL_MULTIPLIER = 1.0;
+      } else if(skill === "medium") {
+        document.getElementById("maxJetpackFuel").value = 333;
+        SKILL_MULTIPLIER = 1.5;
+      } else if(skill === "hard") {
+        document.getElementById("maxJetpackFuel").value = 250;
+        SKILL_MULTIPLIER = 2.0;
+      } else {
+        SKILL_MULTIPLIER = 1.0;
+      }
+    });
+
+    const avatarOptions = document.querySelectorAll(".avatarOption");
+    avatarOptions.forEach(opt => {
+      opt.addEventListener("click", () => {
+        avatarOptions.forEach(o => o.classList.remove("selectedAvatar"));
+        opt.classList.add("selectedAvatar");
+        chosenAvatar = opt.dataset.avatar;
+      });
+    });
+
+    window.addEventListener("keydown", function(e){
+      keysDown[e.key] = true;
+    });
+    window.addEventListener("keyup", function(e){
+      delete keysDown[e.key];
+    });
+
+    document.getElementById("startButton").addEventListener("click", function(){
+      document.getElementById("titleScreen").style.display = "none";
+
+      // Attempt fullscreen (may fail if not user gesture, but that won't crash)
+      if(!document.fullscreenElement){
+        document.documentElement.requestFullscreen().catch(err => {
+          console.warn("Fullscreen error:", err);
+        });
+      }
+
+      // Grab user inputs
+      SNEK_MAX_SPEED            = parseFloat(document.getElementById("snekSpeed").value) || 3.0;
+      BALL_FREQUENCY_FACTOR     = parseFloat(document.getElementById("ballFrequency").value) || 6;
+      POWERUP_FREQUENCY_FACTOR  = parseFloat(document.getElementById("powerupFrequency").value) || 5;
+      HUMAN_GRAVITY             = parseFloat(document.getElementById("gravityValue").value) || 0.2;
+      MUSIC_VOLUME              = parseFloat(document.getElementById("musicVolume").value) || 0.4;
+      JETPACK_FORCE             = parseFloat(document.getElementById("jetpackForce").value) || 0.8;
+
+      ENABLE_CHEATS             = document.getElementById("cheatMode").checked;
+
+      const skill = document.getElementById("skillLevel").value;
+      HUMAN_BASE_SPEED          = parseFloat(document.getElementById("humanBaseSpeed").value) || 2;
+      HUMAN_JUMP_FORCE          = parseFloat(document.getElementById("humanJumpForce").value) || 6;
+      HUMAN_MAX_FALL_SPEED      = parseFloat(document.getElementById("humanMaxFallSpeed").value) || 8;
+      SNEK_MIN_SPEED            = parseFloat(document.getElementById("snekMinSpeed").value) || 1.0;
+      MAX_JETPACK_FUEL          = parseFloat(document.getElementById("maxJetpackFuel").value) || 80;
+      JETPACK_USAGE_RATE        = parseFloat(document.getElementById("jetpackUsageRate").value) || 1.0;
+      JETPACK_RECHARGE_RATE     = parseFloat(document.getElementById("jetpackRechargeRate").value) || 0.5;
+
+      PLATFORM_COUNT            = parseInt(document.getElementById("platformCount").value);
+      PLATFORM_BOUNCE_MULT      = parseFloat(document.getElementById("platformBounceMult").value) || 0.7;
+
+      JETPACK_ACCELERATION      = parseFloat(document.getElementById("jetpackAcceleration").value) || 0.4;
+      JETPACK_MAX_SPEED         = parseFloat(document.getElementById("jetpackMaxSpeed").value) || 3.0;
+
+      landingTimerRefill        = parseFloat(document.getElementById("landingTimerRefill").value) || 0.0125;
+
+      if(skill === "easy"){
+        SKILL_MULTIPLIER = 1.0;
+      } else if(skill === "medium"){
+        SKILL_MULTIPLIER = 1.5;
+      } else if(skill === "hard"){
+        SKILL_MULTIPLIER = 2.0;
+      } else {
+        SKILL_MULTIPLIER = 1.0;
+      }
+
+      initAudio();
+      // If you want music to play automatically (some browsers block),
+      // you can attempt: musicLoop.play().catch(err=>{});
+      initGame();
+    });
+
+    document.getElementById("nextRoundButton").addEventListener("click", function(){
+      startNextRound();
+    });
+
+    document.getElementById("restartButton").addEventListener("click", function(){
+      location.reload();
+    });
+
+    /* TOUCH/MOUSE BUTTONS */
+    const btnLeft = document.getElementById("btnLeft");
+    const btnRight = document.getElementById("btnRight");
+    const btnJump = document.getElementById("btnJump");
+
+    btnLeft.addEventListener("pointerdown", () => { keysDown["ArrowLeft"] = true; });
+    btnLeft.addEventListener("pointerup", () => { delete keysDown["ArrowLeft"]; });
+    btnLeft.addEventListener("pointercancel", () => { delete keysDown["ArrowLeft"]; });
+
+    btnRight.addEventListener("pointerdown", () => { keysDown["ArrowRight"] = true; });
+    btnRight.addEventListener("pointerup", () => { delete keysDown["ArrowRight"]; });
+    btnRight.addEventListener("pointercancel", () => { delete keysDown["ArrowRight"]; });
+
+    btnJump.addEventListener("pointerdown", () => {
+      if(!keysDown[" "]) keysDown[" "] = true;
+    });
+    btnJump.addEventListener("pointerup", () => {
+      if(keysDown[" "]) delete keysDown[" "];
+    });
+    btnJump.addEventListener("pointercancel", () => {
+      if(keysDown[" "]) delete keysDown[" "];
+    });
+  </script>
+</body>
+</html>

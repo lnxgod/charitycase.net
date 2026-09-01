@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://charitycase.net/sitemap.xml
