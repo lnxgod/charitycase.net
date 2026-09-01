@@ -299,9 +299,9 @@ for (const [path, target] of Object.entries(redirects)) {
 }
 
 const sitemapUrls = ["", "blog/", "tools/", ...posts.map((post) => `post/${post.slug}/`)];
-await write(join(out, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemapUrls.map((path) => `\n  <url><loc>https://charitycase.net/${path}</loc></url>`).join("")}\n</urlset>\n`);
-await write(join(out, "robots.txt"), "User-agent: *\nAllow: /\nSitemap: https://charitycase.net/sitemap.xml\n");
-await write(join(out, "CNAME"), "charitycase.net\n");
+await write(join(out, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemapUrls.map((path) => `\n  <url><loc>https://www.charitycase.net/${path}</loc></url>`).join("")}\n</urlset>\n`);
+await write(join(out, "robots.txt"), "User-agent: *\nAllow: /\nSitemap: https://www.charitycase.net/sitemap.xml\n");
+await write(join(out, "CNAME"), "www.charitycase.net\n");
 await write(join(out, ".nojekyll"), "");
 await write(join(out, "404.html"), shell({ title: "Page not found", description: "Page not found", content: `<header class="page-intro"><p class="eyebrow">404</p><h1>That page moved.</h1><p>The Wix site has been migrated. Try the <a href="/">home page</a>, <a href="/blog/">story archive</a>, or <a href="/tools/">tools and games</a>.</p></header>` }));
 
