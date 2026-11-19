@@ -194,6 +194,9 @@ const socials = [
 ];
 
 const paypal = "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=bill.hatzer%40gmail.com&currency_code=USD&source=url";
+const nonprofit = "https://gamechangersai.org/about.html";
+const toyDrive = "https://community.gamechangersai.org/toydrive";
+const christmasShow = "https://community.gamechangersai.org/ChristmasShow";
 
 function escapeHtml(value) {
   return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
@@ -238,18 +241,27 @@ const featured = posts.slice(0, 3).map((post) => storyRow(post)).join("");
 const archive = posts.map((post) => storyRow(post)).join("");
 
 const home = shell({
-  title: "Home",
-  description: "Community toy drives, family-built AI experiments, open-source tools, and stories from Team Charity Case.",
+  title: "Now GameChangers AI",
+  description: "The Hatzer family toy drive continues as GameChangers AI. Find this year's toy drive and Christmas light show or explore the Team Charity Case archive.",
   solid: false,
-  content: `<section class="hero"><div class="hero-inner"><p class="eyebrow">Community · AI education · family experiments</p><h1>Team<br>Charity<br>Case</h1><p class="hero-copy">Toy drives, open-source tools, and playful AI projects built to help people learn, create, and give back.</p><div class="actions"><a class="button button--sun" href="blog/">Read the stories</a><a class="button button--outline" href="tools/">Explore tools &amp; games</a></div></div></section>
-  <section class="section"><div class="section-heading reveal"><h2>Latest stories</h2><p>The original CharityCase.net archive—preserved with its images, dates, and working project links.</p></div><div class="story-list">${featured}</div></section>
+  content: `<section class="hero hero--rebrand"><div class="hero-inner">
+    <p class="eyebrow">Formerly Team Charity Case</p>
+    <h1>We’re now<br>GameChangers AI</h1>
+    <p class="hero-copy">The Hatzer family toy drive continues with GameChangers AI, the 501(c)(3) nonprofit we started to help kids and adults learn to use AI through hands-on projects. Our Christmas light show is one of those projects, built with help from ChatGPT to bring neighbors together and collect toys.</p>
+    <div class="actions">
+      <a class="button button--sun" href="${toyDrive}">Visit the toy drive</a>
+      <a class="button button--outline" href="${christmasShow}">See the Christmas light show</a>
+      <a class="button button--outline" href="${nonprofit}">About GameChangers AI</a>
+    </div>
+  </div></section>
+  <section class="section"><div class="section-heading reveal"><h2>From the archive</h2><p>Explore the <a href="blog/">original Team Charity Case stories</a>, including early toy drives, family-built games, and the plans that became GameChangers AI.</p></div><div class="story-list">${featured}</div></section>
   <section class="section"><div class="section-heading reveal"><h2>Built by curiosity</h2><p>Games made with kids and AI, a family-focused cyber-security assistant, and the open-source Map6 log analyzer.</p></div><div class="tool-list reveal">
     <a class="tool-link" href="tools/snek-remix.html"><span>Play</span><h3>NO STEP ON SNEK: Remix</h3></a>
     <a class="tool-link" href="tools/snek-mobile.html"><span>Play</span><h3>Family Snek Game</h3></a>
     <a class="tool-link" href="tools/map6-analyzer.html"><span>Analyze</span><h3>Map6 Log Analyzer</h3></a>
     <a class="tool-link" href="tools/#cyber-companion"><span>Ask</span><h3>Cyber Security Companion</h3></a>
   </div></section>
-  <section class="support-band" id="support"><div class="section"><div class="section-heading reveal"><h2>Help the toy drive</h2><p>Direct donations help Team Charity Case buy toys and extend the impact of the yearly community drive.</p></div><a class="button button--sun" href="${paypal}">Donate with PayPal</a></div></section>`
+  <section class="support-band" id="support"><div class="section"><div class="section-heading reveal"><h2>Help the toy drive</h2><p>Bring a toy to the GameChangersAI (Hatzer Family) Toy Drive or make a direct donation to help us buy toys for children.</p></div><div class="actions"><a class="button button--sun" href="${toyDrive}">Find toy drop-offs</a><a class="button button--outline" href="${paypal}">Donate with PayPal</a></div></div></section>`
 });
 
 const blog = shell({

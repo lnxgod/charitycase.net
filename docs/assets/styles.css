@@ -131,6 +131,19 @@ button, input { font: inherit; }
   letter-spacing: -0.07em;
 }
 
+.hero--rebrand {
+  background:
+    linear-gradient(90deg, var(--ink) 17%, rgba(23, 19, 41, 0.94) 42%, rgba(23, 19, 41, 0.22) 100%),
+    url("images/toy-pickup.jpg") right 39% / 73% auto no-repeat,
+    var(--ink);
+}
+
+.hero.hero--rebrand h1 {
+  max-width: 980px;
+  font-size: clamp(2.45rem, 8.8vw, 7.5rem);
+  line-height: 0.96;
+}
+
 .hero-copy {
   max-width: 610px;
   margin: 32px 0;
@@ -281,6 +294,11 @@ button, input { font: inherit; }
   .site-nav { position: absolute; top: 68px; left: 0; right: 0; display: none; padding: 24px 20px; background: var(--ink); flex-direction: column; align-items: flex-start; }
   .site-nav.is-open { display: flex; }
   .hero { min-height: 720px; background-position: 61% center; }
+  .hero--rebrand {
+    background:
+      linear-gradient(rgba(23, 19, 41, 0.76), rgba(23, 19, 41, 0.96)),
+      url("images/toy-pickup.jpg") center 40% / cover;
+  }
   .hero-inner { padding-bottom: 64px; }
   .hero h1 { font-size: clamp(3.8rem, 20vw, 6rem); }
   .section { padding: 78px 0; }
