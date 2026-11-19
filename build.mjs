@@ -190,7 +190,7 @@ const socials = [
   ["Facebook", "https://www.facebook.com/will.hatzer"],
   ["X / Twitter", "https://www.twitter.com/lnxgod"],
   ["LinkedIn", "https://www.linkedin.com/in/william-hatzer-88624928/"],
-  ["YouTube", "https://www.youtube.com/@charitycase42"]
+  ["YouTube", "https://www.youtube.com/@GameChangersAIorg"]
 ];
 
 const paypal = "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=bill.hatzer%40gmail.com&currency_code=USD&source=url";
@@ -256,11 +256,12 @@ const home = shell({
       <h1><span>GameChangersAI (Hatzer Family)</span> Toy Drive</h1>
       <p>Every Christmas, our family collects toys for kids in Merced County. If you know us as Team Charity Case, you’re in the right place.</p>
       <div class="actions">
-        <a class="button button--mint" href="#support">How to give</a>
+        <a class="button button--mint" href="#support">Give a toy</a>
+        <a class="button button--outline" href="${escapeHtml(paypal)}">Donate with PayPal</a>
       </div>
     </div>
     <figure class="drive-photo drive-photo--hero">
-      <img src="assets/images/toy-drive-2023.webp" alt="A car trunk filled with boxed toys donated by the community" width="950" height="1262" fetchpriority="high">
+      <img src="assets/images/toy-drive-2023.webp" alt="Boxed toys stacked in the back of a car" width="950" height="1262" fetchpriority="high">
       <figcaption>A trunkful of toys from the 2023 drive.</figcaption>
     </figure>
   </div></section>
@@ -278,12 +279,13 @@ const home = shell({
     </figure>
     <div>
       <h2 id="story-title">It started with a blue bicycle</h2>
-      <p>On Christmas morning in 1986, five-year-old Will Hatzer woke up to his first bike, thanks to donations at his local firehouse. At 13, he started collecting toys through a firehouse in Columbus, Ohio. He brought the tradition to California, where neighbors, car clubs, and local businesses joined in.</p>
-      <div class="drive-links"><a href="${toyDrive}#timeline">See the toy drive through the years</a></div>
+      <p>Will Hatzer was five on Christmas morning in 1986 when he came downstairs and saw his first bicycle. It was blue. Years later, his parents told him that strangers had given it to their family through the local firehouse.</p>
+      <p>Will cleaned up that same bike and donated it so another child could have it for Christmas. He started his toy drive at a firehouse in Columbus, Ohio, and kept it going after he moved to California. Over the years, friends, family, car clubs, and local businesses joined in.</p>
+      <div class="drive-links"><a href="post/gearing-up-for-the-2024-toy-drive-at-charitycase-net/">Read Will’s original story</a><a href="${toyDrive}#timeline">See photos and collection amounts by year</a></div>
     </div>
   </section>
   <section class="drive-wrap drive-legacy" aria-label="GameChangers AI and the Team Charity Case archive">
-    <div><h2>Why GameChangers AI?</h2><p>We started GameChangers AI, our 501(c)(3) nonprofit, to teach kids and adults how to use AI. This Christmas we used ChatGPT to match the lights on our house to the music. Come see the show when you’re in the neighborhood.</p><div class="drive-links"><a href="${christmasShow}">Visit the GameChangers AI Christmas Light Show</a></div></div>
+    <div><h2>Our family today</h2><p>We also started GameChangers AI, our 501(c)(3) nonprofit, to help kids and adults learn to use AI.</p><div class="drive-links"><a href="${christmasShow}">Visit the GameChangers AI Christmas Light Show</a></div></div>
     <div><h3>Team Charity Case archive</h3><p>Our old posts are still here, including toy pickups, raffle updates, and the video games our kids made.</p><div class="drive-links"><a href="blog/">Browse the stories</a><a href="tools/">Try our tools and games</a></div></div>
   </section>`
 });
