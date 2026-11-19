@@ -205,10 +205,17 @@ function escapeHtml(value) {
 function header(base, solid = false) {
   return `<header class="site-header${solid ? " site-header--solid" : ""}">
     <div class="nav-wrap">
-      <a class="brand" href="${base}">TEAM CHARITY CASE</a>
+      <a class="brand" href="${base || "./"}">
+        <img src="${base}assets/images/gamechangers-ai-logo.png" alt="" width="42" height="42">
+        <span>GameChangers AI<small>Hatzer Family Toy Drive</small></span>
+      </a>
       <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">Menu</button>
       <nav class="site-nav" id="site-nav" data-nav aria-label="Main navigation">
-        <a href="${base}">Home</a><a href="${base}blog/">Stories</a><a href="${base}tools/">Tools &amp; games</a><a href="${base}#support">Donate</a>
+        <a href="${toyDrive}#timeline">Our history</a>
+        <a href="${christmasShow}">Christmas show</a>
+        <a href="${base}blog/">Archive</a>
+        <a href="${nonprofit}">About us</a>
+        <a class="nav-give" href="${base}#support">Give a toy</a>
       </nav>
     </div>
   </header>`;
@@ -216,16 +223,18 @@ function header(base, solid = false) {
 
 function footer() {
   return `<footer class="site-footer"><div class="footer-inner">
-    <div><p class="footer-brand">Team Charity Case</p><div class="footer-links">${socials.map(([name, url]) => `<a href="${url}">${name}</a>`).join("")}</div></div>
-    <p class="copyright">© <span data-year></span> Team Charity Case. Content archived from the original Wix site.</p>
+    <div><p class="footer-brand">GameChangers AI</p><div class="footer-links"><a href="${nonprofit}">About us</a>${socials.map(([name, url]) => `<a href="${url}">${name}</a>`).join("")}</div></div>
+    <p class="copyright">© <span data-year></span> GameChangers AI · Formerly Team Charity Case</p>
   </div></footer>`;
 }
 
-function shell({ title, description, base = "", content, solid = true }) {
+function shell({ title, description, base = "", content, solid = true, siteName = "Team Charity Case" }) {
   return `<!doctype html><html lang="en"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>${escapeHtml(title)} | Team Charity Case</title>
+    <title>${escapeHtml(title)} | ${escapeHtml(siteName)}</title>
+    <meta name="theme-color" content="#0b1714">
     <meta name="description" content="${escapeHtml(description)}">
+    <link rel="icon" href="${base}assets/images/gamechangers-ai-logo.png">
     <link rel="stylesheet" href="${base}assets/styles.css">
   </head><body><a class="skip-link" href="#main">Skip to content</a>${header(base, solid)}<main id="main">${content}</main>${footer()}<script src="${base}assets/site.js" defer></script></body></html>`;
 }
@@ -237,31 +246,47 @@ function storyRow(post, base = "") {
   </a>`;
 }
 
-const featured = posts.slice(0, 3).map((post) => storyRow(post)).join("");
-const archive = posts.map((post) => storyRow(post)).join("");
-
 const home = shell({
-  title: "Now GameChangers AI",
-  description: "The Hatzer family toy drive continues as GameChangers AI. Find this year's toy drive and Christmas light show or explore the Team Charity Case archive.",
+  title: "GameChangersAI (Hatzer Family) Toy Drive",
+  siteName: "CharityCase.net",
+  description: "Give a toy, donate, or visit the Hatzer family Christmas light show. The annual Team Charity Case toy drive continues with GameChangers AI.",
   solid: false,
-  content: `<section class="hero hero--rebrand"><div class="hero-inner">
-    <p class="eyebrow">Formerly Team Charity Case</p>
-    <h1>We’re now<br>GameChangers AI</h1>
-    <p class="hero-copy">The Hatzer family toy drive continues with GameChangers AI, the 501(c)(3) nonprofit we started to help kids and adults learn to use AI through hands-on projects. Our Christmas light show is one of those projects, built with help from ChatGPT to bring neighbors together and collect toys.</p>
-    <div class="actions">
-      <a class="button button--sun" href="${toyDrive}">Visit the toy drive</a>
-      <a class="button button--outline" href="${christmasShow}">See the Christmas light show</a>
-      <a class="button button--outline" href="${nonprofit}">About GameChangers AI</a>
+  content: `<section class="drive-hero"><div class="drive-wrap drive-split">
+    <div>
+      <h1><span>GameChangersAI (Hatzer Family)</span> Toy Drive</h1>
+      <p>Help us collect toys for children this Christmas. Our family started this tradition as Team Charity Case. Today it continues with GameChangers AI.</p>
+      <div class="actions">
+        <a class="button button--mint" href="${toyDrive}#give">Find a toy drop-off</a>
+        <a class="button button--outline" href="#support">Donate</a>
+      </div>
     </div>
+    <figure class="drive-photo drive-photo--hero">
+      <img src="assets/images/toy-drive-2023.webp" alt="A car trunk filled with boxed toys donated by the community" width="950" height="1262" fetchpriority="high">
+      <figcaption>Donated toys from the 2023 drive</figcaption>
+    </figure>
   </div></section>
-  <section class="section"><div class="section-heading reveal"><h2>From the archive</h2><p>Explore the <a href="blog/">original Team Charity Case stories</a>, including early toy drives, family-built games, and the plans that became GameChangers AI.</p></div><div class="story-list">${featured}</div></section>
-  <section class="section"><div class="section-heading reveal"><h2>Built by curiosity</h2><p>Games made with kids and AI, a family-focused cyber-security assistant, and the open-source Map6 log analyzer.</p></div><div class="tool-list reveal">
-    <a class="tool-link" href="tools/snek-remix.html"><span>Play</span><h3>NO STEP ON SNEK: Remix</h3></a>
-    <a class="tool-link" href="tools/snek-mobile.html"><span>Play</span><h3>Family Snek Game</h3></a>
-    <a class="tool-link" href="tools/map6-analyzer.html"><span>Analyze</span><h3>Map6 Log Analyzer</h3></a>
-    <a class="tool-link" href="tools/#cyber-companion"><span>Ask</span><h3>Cyber Security Companion</h3></a>
-  </div></section>
-  <section class="support-band" id="support"><div class="section"><div class="section-heading reveal"><h2>Help the toy drive</h2><p>Bring a toy to the GameChangersAI (Hatzer Family) Toy Drive or make a direct donation to help us buy toys for children.</p></div><div class="actions"><a class="button button--sun" href="${toyDrive}">Find toy drop-offs</a><a class="button button--outline" href="${paypal}">Donate with PayPal</a></div></div></section>`
+  <section class="drive-wrap drive-giving" id="support" aria-labelledby="give-title">
+    <h2 id="give-title">How to give</h2>
+    <div class="giving-options">
+      <div><h3>Bring a new toy</h3><p>Please bring a new, unwrapped toy. Check the community page for this season’s drop-off locations and hours.</p><a class="button button--dark" href="${toyDrive}#give">See drop-off details</a></div>
+      <div><h3>Help us buy toys</h3><p>Give directly through PayPal and we’ll use your donation to buy toys for the drive.</p><a class="button button--plain" href="${escapeHtml(paypal)}">Donate with PayPal</a></div>
+    </div>
+  </section>
+  <section class="drive-wrap drive-split drive-story" aria-labelledby="story-title">
+    <figure class="drive-photo">
+      <img src="assets/images/toy-drive-2025.webp" alt="A blue bicycle and bags of donated toys at the 2025 drop-off" width="950" height="426" loading="lazy">
+      <figcaption>December 2025 · Hatzer family archive</figcaption>
+    </figure>
+    <div>
+      <h2 id="story-title">It started with a blue bicycle.</h2>
+      <p>In 1986, Will Hatzer’s local firehouse gave him his first bicycle. That Christmas stayed with him. Years later, giving toys back became a family tradition that grew with the help of neighbors, car clubs, and local businesses.</p>
+      <div class="drive-links"><a href="${toyDrive}#timeline">Explore the toy drive timeline</a><a href="${christmasShow}">Visit the Christmas light show</a></div>
+    </div>
+  </section>
+  <section class="drive-wrap drive-legacy" aria-label="GameChangers AI and the Team Charity Case archive">
+    <div><h2>From Team Charity Case to GameChangers AI</h2><p>We started GameChangers AI, a 501(c)(3) nonprofit, to help kids and adults learn to use AI through hands-on projects. We used ChatGPT to help build the Christmas light show that brings neighbors together for the drive.</p><a href="${nonprofit}">About GameChangers AI</a></div>
+    <div><h3>Team Charity Case archive</h3><p>Read the original toy-drive updates and explore our family-built games and open-source projects.</p><div class="drive-links"><a href="blog/">Read the original stories</a><a href="tools/">Explore tools &amp; games</a></div></div>
+  </section>`
 });
 
 const blog = shell({
