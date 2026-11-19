@@ -211,11 +211,11 @@ function header(base, solid = false) {
       </a>
       <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">Menu</button>
       <nav class="site-nav" id="site-nav" data-nav aria-label="Main navigation">
-        <a href="${toyDrive}#timeline">Our history</a>
-        <a href="${christmasShow}">Christmas show</a>
+        <a href="${toyDrive}#timeline">Toy drive history</a>
+        <a href="${christmasShow}">Christmas light show</a>
         <a href="${base}blog/">Archive</a>
-        <a href="${nonprofit}">About us</a>
-        <a class="nav-give" href="${base}#support">Give a toy</a>
+        <a href="${nonprofit}">About us</a>${base ? `
+        <a class="nav-give" href="${base}#support">How to give</a>` : ""}
       </nav>
     </div>
   </header>`;
@@ -224,7 +224,7 @@ function header(base, solid = false) {
 function footer() {
   return `<footer class="site-footer"><div class="footer-inner">
     <div><p class="footer-brand">GameChangers AI</p><div class="footer-links"><a href="${nonprofit}">About us</a>${socials.map(([name, url]) => `<a href="${url}">${name}</a>`).join("")}</div></div>
-    <p class="copyright">© <span data-year></span> GameChangers AI · Formerly Team Charity Case</p>
+    <p class="copyright">© <span data-year></span> GameChangers AI</p>
   </div></footer>`;
 }
 
@@ -249,58 +249,57 @@ function storyRow(post, base = "") {
 const home = shell({
   title: "GameChangersAI (Hatzer Family) Toy Drive",
   siteName: "CharityCase.net",
-  description: "Give a toy, donate, or visit the Hatzer family Christmas light show. The annual Team Charity Case toy drive continues with GameChangers AI.",
+  description: "Join the Hatzer family’s Christmas toy drive, formerly Team Charity Case. Bring a new, unwrapped toy or help us shop for one.",
   solid: false,
   content: `<section class="drive-hero"><div class="drive-wrap drive-split">
     <div>
       <h1><span>GameChangersAI (Hatzer Family)</span> Toy Drive</h1>
-      <p>Help us collect toys for children this Christmas. Our family started this tradition as Team Charity Case. Today it continues with GameChangers AI.</p>
+      <p>Every Christmas, our family collects toys for kids in Merced County. If you know us as Team Charity Case, you’re in the right place.</p>
       <div class="actions">
-        <a class="button button--mint" href="${toyDrive}#give">Find a toy drop-off</a>
-        <a class="button button--outline" href="#support">Donate</a>
+        <a class="button button--mint" href="#support">How to give</a>
       </div>
     </div>
     <figure class="drive-photo drive-photo--hero">
       <img src="assets/images/toy-drive-2023.webp" alt="A car trunk filled with boxed toys donated by the community" width="950" height="1262" fetchpriority="high">
-      <figcaption>Donated toys from the 2023 drive</figcaption>
+      <figcaption>A trunkful of toys from the 2023 drive.</figcaption>
     </figure>
   </div></section>
   <section class="drive-wrap drive-giving" id="support" aria-labelledby="give-title">
     <h2 id="give-title">How to give</h2>
     <div class="giving-options">
-      <div><h3>Bring a new toy</h3><p>Please bring a new, unwrapped toy. Check the community page for this season’s drop-off locations and hours.</p><a class="button button--dark" href="${toyDrive}#give">See drop-off details</a></div>
-      <div><h3>Help us buy toys</h3><p>Give directly through PayPal and we’ll use your donation to buy toys for the drive.</p><a class="button button--plain" href="${escapeHtml(paypal)}">Donate with PayPal</a></div>
+      <div><h3>Bring a toy</h3><p>Choose a new toy and leave it unwrapped. We post collection dates and locations on our community page.</p><a class="button button--dark" href="${toyDrive}#give">Check drop-off updates</a></div>
+      <div><h3>Help us shop</h3><p>If you’d rather give money, we’ll use it to buy toys for local kids.</p><a class="button button--plain" href="${escapeHtml(paypal)}">Donate with PayPal</a></div>
     </div>
   </section>
   <section class="drive-wrap drive-split drive-story" aria-labelledby="story-title">
     <figure class="drive-photo">
       <img src="assets/images/toy-drive-2025.webp" alt="A blue bicycle and bags of donated toys at the 2025 drop-off" width="950" height="426" loading="lazy">
-      <figcaption>December 2025 · Hatzer family archive</figcaption>
+      <figcaption>A blue bike at our December 2025 drop-off.</figcaption>
     </figure>
     <div>
-      <h2 id="story-title">It started with a blue bicycle.</h2>
-      <p>In 1986, Will Hatzer’s local firehouse gave him his first bicycle. That Christmas stayed with him. Years later, giving toys back became a family tradition that grew with the help of neighbors, car clubs, and local businesses.</p>
-      <div class="drive-links"><a href="${toyDrive}#timeline">Explore the toy drive timeline</a><a href="${christmasShow}">Visit the Christmas light show</a></div>
+      <h2 id="story-title">It started with a blue bicycle</h2>
+      <p>On Christmas morning in 1986, five-year-old Will Hatzer woke up to his first bike, thanks to donations at his local firehouse. At 13, he started collecting toys through a firehouse in Columbus, Ohio. He brought the tradition to California, where neighbors, car clubs, and local businesses joined in.</p>
+      <div class="drive-links"><a href="${toyDrive}#timeline">See the toy drive through the years</a></div>
     </div>
   </section>
   <section class="drive-wrap drive-legacy" aria-label="GameChangers AI and the Team Charity Case archive">
-    <div><h2>From Team Charity Case to GameChangers AI</h2><p>We started GameChangers AI, a 501(c)(3) nonprofit, to help kids and adults learn to use AI through hands-on projects. We used ChatGPT to help build the Christmas light show that brings neighbors together for the drive.</p><a href="${nonprofit}">About GameChangers AI</a></div>
-    <div><h3>Team Charity Case archive</h3><p>Read the original toy-drive updates and explore our family-built games and open-source projects.</p><div class="drive-links"><a href="blog/">Read the original stories</a><a href="tools/">Explore tools &amp; games</a></div></div>
+    <div><h2>Why GameChangers AI?</h2><p>We started GameChangers AI, our 501(c)(3) nonprofit, to teach kids and adults how to use AI. This Christmas we used ChatGPT to match the lights on our house to the music. Come see the show when you’re in the neighborhood.</p><div class="drive-links"><a href="${christmasShow}">Visit the GameChangers AI Christmas Light Show</a></div></div>
+    <div><h3>Team Charity Case archive</h3><p>Our old posts are still here, including toy pickups, raffle updates, and the video games our kids made.</p><div class="drive-links"><a href="blog/">Browse the stories</a><a href="tools/">Try our tools and games</a></div></div>
   </section>`
 });
 
 const blog = shell({
-  title: "Stories",
-  description: "The complete Team Charity Case story archive.",
+  title: "Story archive",
+  description: "Toy drive news, family projects, and updates we shared as Team Charity Case.",
   base: "../",
-  content: `<header class="page-intro"><p class="eyebrow">The archive</p><h1>Stories, updates &amp; experiments</h1><p>Ten original posts from CharityCase.net, from toy drives and DEF CON to AI education and family-built games.</p></header><section class="section section--tight"><div class="search-wrap"><label for="archive-search">Search the archive</label><input id="archive-search" data-search type="search" placeholder="Try “toy drive” or “Snek”"></div><div class="story-list">${posts.map((post) => storyRow(post, "../")).join("")}</div><p class="empty-state" data-empty>No matching stories found.</p></section>`
+  content: `<header class="page-intro"><h1>Team Charity Case stories</h1><p>These are the updates we shared in 2024 and 2025 about the toy drive, our family’s games, and what we were building.</p></header><section class="section section--tight"><div class="search-wrap"><label for="archive-search">Search the archive</label><input id="archive-search" data-search type="search" placeholder="Try “toy drive” or “Snek”"></div><div class="story-list">${posts.map((post) => storyRow(post, "../")).join("")}</div><p class="empty-state" data-empty>No stories match your search. Try a different word.</p></section>`
 });
 
 const toolsPage = shell({
   title: "Tools & games",
   description: "Play the NO STEP ON SNEK games, use Map6 Analyzer, or ask the Cyber Security Companion.",
   base: "../",
-  content: `<header class="page-intro"><p class="eyebrow">Working archive</p><h1>Tools &amp; games</h1><p>The interactive projects from the Wix site are hosted here directly, without Wix.</p></header><section class="section section--tight"><div class="tool-list reveal">
+  content: `<header class="page-intro"><h1>Tools &amp; games</h1><p>Play the games our family made or try a tool we built as Team Charity Case.</p></header><section class="section section--tight"><div class="tool-list reveal">
     <a class="tool-link" href="snek-remix.html"><span>Desktop / touch</span><h3>NO STEP ON SNEK: Remix</h3></a>
     <a class="tool-link" href="snek-mobile.html"><span>Mobile</span><h3>Original Family Snek</h3></a>
     <a class="tool-link" href="snek-desktop.html"><span>Desktop</span><h3>Original Snek: Full Version</h3></a>
@@ -326,13 +325,13 @@ for (const post of posts) {
 }
 
 const redirects = {
-  "general-4": "../tools/snek-desktop.html",
-  "general-4-1": "../tools/snek-mobile.html",
-  "coming-soon-01": "../tools/snek-remix.html",
-  "blank": "../tools/map6-analyzer.html"
+  "general-4": ["../tools/snek-desktop.html", "Play NO STEP ON SNEK on desktop"],
+  "general-4-1": ["../tools/snek-mobile.html", "Play NO STEP ON SNEK on mobile"],
+  "coming-soon-01": ["../tools/snek-remix.html", "Play NO STEP ON SNEK Remix"],
+  "blank": ["../tools/map6-analyzer.html", "Open the Map6 Log Analyzer"]
 };
-for (const [path, target] of Object.entries(redirects)) {
-  await write(join(out, `${path}/index.html`), `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta http-equiv="refresh" content="0;url=${target}"><link rel="canonical" href="${target}"><title>Moving…</title></head><body><p><a href="${target}">Continue to the migrated page</a></p></body></html>`);
+for (const [path, [target, label]] of Object.entries(redirects)) {
+  await write(join(out, `${path}/index.html`), `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta http-equiv="refresh" content="0;url=${target}"><link rel="canonical" href="${target}"><title>${label}</title></head><body><p><a href="${target}">${label}</a></p></body></html>`);
 }
 
 const sitemapUrls = ["", "blog/", "tools/", ...posts.map((post) => `post/${post.slug}/`)];
@@ -340,7 +339,7 @@ await write(join(out, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<
 await write(join(out, "robots.txt"), "User-agent: *\nAllow: /\nSitemap: https://www.charitycase.net/sitemap.xml\n");
 await write(join(out, "CNAME"), "www.charitycase.net\n");
 await write(join(out, ".nojekyll"), "");
-await write(join(out, "404.html"), shell({ title: "Page not found", description: "Page not found", content: `<header class="page-intro"><p class="eyebrow">404</p><h1>That page moved.</h1><p>The Wix site has been migrated. Try the <a href="/">home page</a>, <a href="/blog/">story archive</a>, or <a href="/tools/">tools and games</a>.</p></header>` }));
+await write(join(out, "404.html"), shell({ title: "Page not found", siteName: "CharityCase.net", base: "/", description: "Find the Hatzer family toy drive or the Team Charity Case archive.", content: `<header class="page-intro"><h1>We couldn’t find that page</h1><p>Visit the <a href="/">Hatzer family toy drive</a> or look for an older post in the <a href="/blog/">Team Charity Case archive</a>.</p></header>` }));
 
 async function write(path, contents) {
   await mkdir(dirname(path), { recursive: true });
