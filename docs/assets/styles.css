@@ -175,6 +175,12 @@ button, input { font: inherit; }
 .giving-options h3, .drive-legacy h3 { margin: 0; font-size: 1.3rem; font-weight: 670; }
 .giving-options p, .drive-story p, .drive-legacy p { max-width: 55ch; margin: 0.65rem 0 1rem; color: var(--ink-soft); }
 .drive-story { border-top: 1px solid var(--line); }
+.drive-flyer { display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 210px); align-items: center; gap: clamp(1rem, 4vw, 3rem); border-top: 1px solid var(--line); padding-top: 2rem; margin-top: 2rem; }
+.drive-flyer h3 { margin: 0; font-size: 1.5rem; line-height: 1.2; }
+.drive-flyer p { max-width: 57ch; margin: 0.7rem 0 0; color: var(--ink-soft); }
+.drive-flyer a { display: block; width: fit-content; font-weight: 640; text-underline-offset: 0.25em; }
+.drive-flyer img { display: block; width: min(100%, 210px); height: auto; border: 1px solid var(--line); }
+.drive-flyer span { display: block; margin-top: 0.4rem; }
 .drive-story .drive-photo img { aspect-ratio: 1.68; object-fit: cover; object-position: 32% center; }
 .drive-links { display: flex; flex-wrap: wrap; gap: 0.45rem 1.4rem; }
 .drive-links a, .drive-legacy a { font-weight: 640; text-underline-offset: 0.25em; }
@@ -317,6 +323,7 @@ button, input { font: inherit; }
 }
 
 @media (max-width: 520px) {
+  .drive-flyer { grid-template-columns: minmax(0, 1fr); }
   .giving-options { grid-template-columns: minmax(0, 1fr); }
   .giving-options > div + div { padding: 1.25rem 0 0; border: 0; border-top: 1px solid var(--line); }
 }

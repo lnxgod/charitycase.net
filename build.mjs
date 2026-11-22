@@ -271,6 +271,14 @@ const home = shell({
       <div><h3>Bring a toy</h3><p>Bring a new, unwrapped toy to our home in McSwain from November 27 through December 11, 2026.</p><a class="button button--dark" href="${toyDrive}/#visit">Find the drop-off location</a></div>
       <div><h3>Give money for toys</h3><p>Cash donations are welcome even after toy drop-offs end on December 11. Your gift helps us buy toys for local kids.</p><a class="button button--plain" href="${escapeHtml(paypal)}">Donate with PayPal</a></div>
     </div>
+    <section class="drive-flyer" id="collection-flyer" aria-labelledby="flyer-title">
+      <div>
+        <h3 id="flyer-title">Merced’s Cops &amp; Fire for Kids</h3>
+        <p>Our family collects toys for this program. The Merced Police Department and Merced Fire Rescue are asking for new, unwrapped toys for children from birth through age 11.</p>
+        <p>Their flyer lists November 30 for collection sites in Merced. After that date, you can take toys to 611 W. 22nd St. in Merced. Our family’s McSwain drop-off runs through December 11.</p>
+      </div>
+      <a href="https://community.gamechangersai.org/assets/flyers/cops-fire-for-kids-toy-collection-2026.png"><img src="assets/images/merced-toy-collection-2026.webp" width="448" height="580" alt="Toy Collection flyer with Merced Police and Fire Rescue badges" loading="lazy"><span>View the full-size flyer</span></a>
+    </section>
   </section>
   <section class="drive-wrap drive-split drive-story" aria-labelledby="story-title">
     <figure class="drive-photo">
