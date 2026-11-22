@@ -249,7 +249,7 @@ function storyRow(post, base = "") {
 const home = shell({
   title: "GameChangersAI (Hatzer Family) Toy Drive",
   siteName: "CharityCase.net",
-  description: "Join the Hatzer family’s Christmas toy drive, formerly Team Charity Case. Bring a new, unwrapped toy or help us shop for one.",
+  description: "Bring a new, unwrapped toy November 27 through December 11, 2026, or give money to help the Hatzer family buy toys for Merced County kids. Cash donations are welcome after December 11, too.",
   solid: false,
   content: `<section class="drive-hero"><div class="drive-wrap drive-split">
     <div>
@@ -268,8 +268,8 @@ const home = shell({
   <section class="drive-wrap drive-giving" id="support" aria-labelledby="give-title">
     <h2 id="give-title">How to give</h2>
     <div class="giving-options">
-      <div><h3>Bring a toy</h3><p>Choose a new toy and leave it unwrapped. We post collection dates and locations on our community page.</p><a class="button button--dark" href="${toyDrive}#give">Check drop-off updates</a></div>
-      <div><h3>Help us shop</h3><p>If you’d rather give money, we’ll use it to buy toys for local kids.</p><a class="button button--plain" href="${escapeHtml(paypal)}">Donate with PayPal</a></div>
+      <div><h3>Bring a toy</h3><p>Bring a new, unwrapped toy to our home in McSwain from November 27 through December 11, 2026.</p><a class="button button--dark" href="${toyDrive}/#visit">Find the drop-off location</a></div>
+      <div><h3>Give money for toys</h3><p>Cash donations are welcome even after toy drop-offs end on December 11. Your gift helps us buy toys for local kids.</p><a class="button button--plain" href="${escapeHtml(paypal)}">Donate with PayPal</a></div>
     </div>
   </section>
   <section class="drive-wrap drive-split drive-story" aria-labelledby="story-title">
